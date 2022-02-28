@@ -11,8 +11,8 @@ version 10.0.0.
 ### Cypress App changes
 
 - The “Run all specs” and “Run filtered specs” functionality have been removed
-- The experimental "Cypress Studio" has removed and will be rethought/revisited
-  in a later release
+- The experimental "Cypress Studio" has been removed and will be
+  rethought/revisited in a later release
 
 ### Configuration file changes
 
@@ -111,10 +111,16 @@ the [`e2e`](/guides/references/configuration#e2e) configuration object.
 
 #### `componentFolder`
 
-This option is no longer used, and has been removed completely. If you need to
-reference a custom folder, use the
-[`specPattern`](/guides/references/configuration#component) option inside the
-`component` configuration option.
+This option is no longer used, as it has been made redundant by the
+`specPattern`
+[testing-type specific option](/guides/references/configuration#Testing-Type-Specific-Options).
+
+<Alert type="warning">
+
+Attempting to set the `componentFolder` config option will result in an error
+when Cypress loads.
+
+</Alert>
 
 #### `devServer()` and `devServerConfig`
 
@@ -125,7 +131,8 @@ top-level, and may only be defined in the
 
 Related notes:
 
-- Do not configure your dev server inside `setupNodeEvents()`.
+- Do not configure your dev server inside `setupNodeEvents()`, use the
+  `devServer()` config option instead.
 - All component testing dev server plugins have been updated with a `devServer`
   named export function. Be sure to update your config to use the `devServer`
   named export.
@@ -133,9 +140,21 @@ Related notes:
   plugins’ `devServer` named export function, which should simplify
   configuration.
 
+<Alert type="info">
+
+See the dev server documentation for the plugin you’re using for more specific
+instructions on what the `devServerConfig` should be for that plugin. Some
+examples can be found in our
+[framework documentation](/guides/getting-started/component-framework-configuration).
+
+</Alert>
+
 **Variant 1 (webpack & vite dev servers)**
 
 <Badge type="danger">Before</Badge>
+
+<code-group>
+<code-block label="cypress/plugins/index.js" active>
 
 ```js
 const { startDevServer } = require('@cypress/webpack-dev-server')
@@ -149,6 +168,9 @@ module.exports = (on, config) => {
   }
 }
 ```
+
+</code-block>
+</code-group>
 
 <Badge type="success">After</Badge>
 
@@ -169,7 +191,7 @@ module.exports = defineConfig({
 ```
 
 </code-block>
-<code-block label="more verbose">
+<code-block label="(verbose)">
 
 ```js
 const { defineConfig } = require('cypress')
@@ -179,8 +201,46 @@ const webpackConfig = require('./webpack.config.js')
 module.exports = defineConfig({
   component: {
     devServer(cypressDevServerConfig, devServerConfig) {
-      // The devServerConfig argument passed in here is actually the
-      // devServerConfig config option defined outside this function
+      // The devServerConfig argument passed in here
+      // is actually the devServerConfig config option
+      // defined outside this function
+      return devServer(cypressDevServerConfig, devServerConfig)
+    },
+    devServerConfig: { webpackConfig },
+  },
+})
+```
+
+</code-block>
+<code-block label="cypress.config.ts">
+
+```js
+import { defineConfig } from 'cypress'
+import { devServer } from '@cypress/webpack-dev-server'
+import webpackConfig from './webpack.config.js'
+
+export default defineConfig({
+  component: {
+    devServer,
+    devServerConfig: { webpackConfig },
+  },
+})
+```
+
+</code-block>
+<code-block label="(verbose)">
+
+```js
+import { defineConfig } from 'cypress'
+import { devServer } from '@cypress/webpack-dev-server'
+import webpackConfig from './webpack.config.js'
+
+export default defineConfig({
+  component: {
+    devServer(cypressDevServerConfig, devServerConfig) {
+      // The devServerConfig argument passed in here
+      // is actually the devServerConfig config option
+      // defined outside this function
       return devServer(cypressDevServerConfig, devServerConfig)
     },
     devServerConfig: { webpackConfig },
@@ -190,15 +250,6 @@ module.exports = defineConfig({
 
 </code-block>
 </code-group>
-
-<Alert type="info">
-
-See the dev server documentation for the plugin you’re using for more specific
-instructions on what the `devServerConfig` should be for that plugin. Some
-examples can be found in our
-[framework documentation](/guides/getting-started/component-framework-configuration).
-
-</Alert>
 
 **Variant 2 (react plugin dev servers)**
 
@@ -255,25 +306,23 @@ module.exports = defineConfig({
 </code-block>
 </code-group>
 
-<Alert type="info">
+#### `experimentalStudio`
 
-See the dev server documentation for the plugin you’re using for more specific
-instructions on what the `devServerConfig` should be for that plugin. Some
-examples can be found in our
-[framework documentation](/guides/getting-started/component-framework-configuration).
+This option is no longer used. The experimental "Cypress Studio" has been
+removed and will be rethought/revisited in a later release.
+
+<Alert type="warning">
+
+Attempting to set the `experimentalStudio` config option will result in an error
+when Cypress loads.
 
 </Alert>
 
-#### `experimentalStudio`
+#### `ignoreTestFiles` → `excludeSpecPattern`
 
-This option is no longer used, and has been removed completely.
-
-#### `ignoreTestFiles`
-
-This option is no longer used, and has been removed completely. If you need to
-reference a custom folder, use the
-[`excludeSpecPattern`](/guides/references/configuration#e2e) option inside the
-`e2e` config option.
+The `ignoreTestFiles` option is no longer used, and has been replaced with the
+`excludeSpecPattern`
+[testing-type specific option](/guides/references/configuration#Testing-Type-Specific-Options).
 
 <Badge type="danger">Before</Badge>
 
@@ -296,41 +345,54 @@ reference a custom folder, use the
 }
 ```
 
+<Alert type="warning">
+
+Attempting to set the `ignoreTestFiles` config option will result in an error
+when Cypress loads.
+
+</Alert>
+
 #### `integrationFolder`
 
-This option is no longer used, and has been removed completely. If you need to
-reference a custom folder, use the
-[`specPattern`](/guides/references/configuration#e2e) option inside the `e2e`
-config option.
-
-#### `pluginsFile`
-
-This option is no longer used, and has been removed completely. All plugin file
-functionality has moved into the
-[`setupNodeEvents`](/guides/references/configuration#setupNodeEvents) function
-and the
-[`devServer` and `devServerConfig`](/guides/references/configuration#devServer-devServerConfig)
-options.
+This option is no longer used, as it has been made redundant by the
+`specPattern`
+[testing-type specific option](/guides/references/configuration#Testing-Type-Specific-Options).
 
 <Alert type="warning">
 
-Attempting to set the `pluginsFile` option in the config will result in an error
+Attempting to set the `integrationFolder` config option will result in an error
 when Cypress loads.
+
+</Alert>
+
+#### `pluginsFile`
+
+This option is no longer used, and all plugin file functionality has moved into
+the [`setupNodeEvents()`](/guides/references/configuration#setupNodeEvents),
+[`devServer()` and `devServerConfig`](/guides/references/configuration#devServer-devServerConfig)
+options. See the [Plugins file removed](#Plugins-file-removed) section of this
+migration guide for more details.
+
+<Alert type="warning">
+
+Attempting to set the `pluginsFile` config option will result in an error when
+Cypress loads.
 
 </Alert>
 
 #### `setupNodeEvents()`
 
-All functionality related to setting up events or modifying the config
-(previously in the plugins file) has moved here. More information can be found
-in the [Plugins API documentation](/api/plugins/writing-a-plugin#Plugins-API)
-and the [Configuration API documentation](/api/plugins/configuration-api#Usage).
-
-This option is not valid at the top-level, and may only be defined inside the
-`component` or `e2e`
+All functionality related to setting up events or modifying the config,
+previously done in the plugins file, has moved into the `setupNodeEvents()`
+config options. This option is not valid at the top level of the config, and may
+only be defined inside the `component` or `e2e`
 [configuration objects](/guides/references/configuration#Testing-Type-Specific-Options).
 
-<Badge type="danger">Before</Badge> Using `cypress/plugins/index.js`
+More information can be found in the
+[Plugins API documentation](/api/plugins/writing-a-plugin#Plugins-API) and the
+[Configuration API documentation](/api/plugins/configuration-api#Usage).
+
+<Badge type="danger">Before</Badge> `cypress/plugins/index.js`
 
 ```js
 module.exports = (on, config) => {
@@ -343,7 +405,7 @@ module.exports = (on, config) => {
 }
 ```
 
-<Badge type="success">After</Badge> Using the Cypress config file
+<Badge type="success">After</Badge>
 
 :::cypress-config-example{noJson}
 
@@ -367,14 +429,17 @@ module.exports = (on, config) => {
 
 :::
 
-Instead of placing `setupNodeEvents()` in your configuration file, you can also
-use an external file. In order to do that, you will need to update it to remove
-any component testing dev server code and load it explicitly, which is now done
-with the [`devServer()`](#devServer-and-devServerConfig) option:
+Alternately, you can continue to use an external plugins file, but you will need
+to load that file explicitly, and also update it to move any component testing
+dev server code into the [`devServer()`](#devServer-and-devServerConfig) config
+option.
+
+<code-group>
+<code-block label="cypress.config.js" active>
 
 ```js
 const { defineConfig } = require('cypress')
-const setupNodeEvents = require('./cypress/plugins/index.js') // Do we still include this since we made a big deal about deprecating?
+const setupNodeEvents = require('./cypress/plugins/index.js')
 
 module.exports = defineConfig({
   component: {
@@ -389,10 +454,34 @@ module.exports = defineConfig({
 })
 ```
 
+</code-block>
+<code-block label="cypress.config.ts">
+
+```js
+import { defineConfig } from 'cypress'
+import setupNodeEvents from './cypress/plugins/index.js'
+
+export default defineConfig({
+  component: {
+    devServer(cypressDevServerConfig, devServerConfig) {
+      // component testing dev server setup code
+    },
+    setupNodeEvents,
+  },
+  e2e: {
+    setupNodeEvents,
+  },
+})
+```
+
+</code-block>
+</code-group>
+
 #### `supportFile`
 
-The `supportFile` configuration option is no longer valid at the top-level.
-Instead, it must be configured within each testing type's configuration object.
+The `supportFile` configuration option is no longer valid at the top level of
+the configuration, and is now a
+[testing-type specific option](/guides/references/configuration#Testing-Type-Specific-Options).
 More information can be found in the
 [support file docs](/guides/core-concepts/writing-and-organizing-tests#Support-file).
 
@@ -409,43 +498,35 @@ More information can be found in the
 ```js
 {
   component: {
-		supportFile: 'cypress/support/component.js'
+    supportFile: 'cypress/support/component.js'
   },
   e2e: {
-		supportFile: 'cypress/support/e2e.js'
+    supportFile: 'cypress/support/e2e.js'
   }
 }
 ```
 
 <Alert type="warning">
 
-For a given testing type, multiple matching `supportFile` files will result in
-an error when Cypress loads.
+Attempting to set the `supportFile` config option at the top level of the
+configuration will result in an error when Cypress loads.
+
+Also, for a given testing type, multiple matching `supportFile` files will
+result in an error when Cypress loads.
 
 </Alert>
 
-#### `testFiles`
+#### `testFiles` → `specPattern`
 
-The testFiles option is no longer used. It has been replaced with the
-`specPattern` option which can be defined inside
+The `testFiles` option is no longer used, and has been replaced with the
+`specPattern` option, which must be defined inside the
 [`component`](/guides/references/configuration#component) and
 [`e2e`](/guides/references/configuration#e2e) configuration objects.
 
 <Alert type="warning">
 
-Attempting to set the `testFiles` option in the config will result in an error
-when Cypress loads.
-
-</Alert>
-
-<Alert type="info">
-
-All options specified via the `--config` flag or `config` module API option
-override the resolved config value, so you never need to specify the `e2e` or
-`component` objects. This is the 9.x behavior, and is unchanged in 10.0.
-
-Function options (eg. `setupNodeEvents`, `devServer`) can not be specified via
-the `--config` flag or `config` module API option.
+Attempting to set the `testFiles` config option will result in an error when
+Cypress loads.
 
 </Alert>
 
