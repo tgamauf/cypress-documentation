@@ -106,13 +106,21 @@ on('<event>', (arg1, arg2) => {
 
 #### `baseUrl`
 
-This option is no longer valid at the top-level, and may only be defined inside
-the [`e2e`](/guides/references/configuration#e2e) configuration object.
+The `baseUrl` config option is no longer valid at the top level of the
+configuration, and may only be defined inside the
+[`e2e`](/guides/references/configuration#e2e) configuration object.
+
+<Alert type="warning">
+
+Attempting to set the `baseUrl` config option at the top level of the
+configuration will result in an error when Cypress loads.
+
+</Alert>
 
 #### `componentFolder`
 
-This option is no longer used, as it has been made redundant by the
-`specPattern`
+The `componentFolder` config option is no longer used, as it has been made
+redundant by the `specPattern`
 [testing-type specific option](/guides/references/configuration#Testing-Type-Specific-Options).
 
 <Alert type="warning">
@@ -124,7 +132,7 @@ when Cypress loads.
 
 #### `devServer()` and `devServerConfig`
 
-All functionality related to starting a component-testing dev server previously
+All functionality related to starting a component testing dev server previously
 in the `pluginsFile` has moved here. These options are not valid at the
 top-level, and may only be defined in the
 [`component`](/guides/references/configuration#e2e) configuration object.
